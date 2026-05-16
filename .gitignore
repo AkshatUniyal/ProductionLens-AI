@@ -1,0 +1,33 @@
+# macOS
+.DS_Store
+
+# Python
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.pycache-check/
+
+# Local environments
+venv/
+.venv/
+env/
+
+# Local app state and exports
+reviews.db
+*.db
+*.sqlite
+*.sqlite3
+*.log
+ProductionLens_Report.pdf
+
+# Private/demo material
+Documents/
+scratch/
+
+# Secrets and local overrides
+.env
+.env.*
+!.env.example
+.streamlit/secrets.toml

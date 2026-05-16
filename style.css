@@ -1,0 +1,393 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
+:root {
+    --primary: #2563eb;
+    --primary-light: #eff6ff;
+    --bg: #f8fafc;
+    --card-bg: #ffffff;
+    --border: #e2e8f0;
+    --text-dark: #1e293b;
+    --text-muted: #64748b;
+    --success: #16a34a;
+    --danger: #dc2626;
+    --warning: #d97706;
+}
+
+/* ===== Global ===== */
+.stApp {
+    background-color: var(--bg);
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+/* Hide Streamlit chrome & kill ALL top dead space */
+[data-testid="stHeader"] { background-color: transparent !important; height: 0 !important; z-index: 999999 !important; }
+[data-testid="collapsedControl"] { background-color: #ffffff !important; border-radius: 50% !important; box-shadow: 0 2px 4px rgba(0,0,0,0.1) !important; padding: 0.2rem !important; margin-left: 0.5rem; margin-top: 0.5rem; display: flex !important; align-items: center; justify-content: center; z-index: 999999 !important; }
+#MainMenu { display: none !important; }
+footer { display: none !important; }
+
+/* The magic fix for the top gap: pull the entire app view up to swallow the invisible header space */
+.stAppViewBlockContainer {
+    padding-top: 0 !important;
+    margin-top: -3.75rem !important; /* Swallows the 60px default header space */
+}
+
+/* Ensure the container itself is flush and full-width */
+.block-container {
+    padding-top: 0 !important;
+    padding-bottom: 5rem !important;
+    max-width: none !important;
+    padding-left: 2rem !important;
+    padding-right: 2rem !important;
+}
+
+
+/* ===== Top Header Bar — Flush & Sticky ===== */
+/* ===== Universal Dashboard Frame (Creative Fix) ===== */
+header[data-testid="stHeader"] { background-color: transparent; } /* Hide streamlit default background */
+
+/* Push both Sidebar and Main content down to meet the roof */
+[data-testid="stSidebar"] > div:first-child { padding-top: 3.5rem !important; }
+.block-container { padding-top: 4.5rem !important; padding-bottom: 2rem !important; max-width: 95rem !important; }
+
+.top-header {
+    background: rgba(255, 255, 255, 0.98);
+    backdrop-filter: blur(12px);
+    padding: 0 4rem 0 21rem; /* Added 21rem left padding to clear the sidebar */
+    height: 5.5rem;
+    border-bottom: 1px solid #e2e8f0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    z-index: 10000;
+    margin: 0 !important;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.02);
+}
+
+.top-header-left { 
+    display: flex; 
+    align-items: center;
+    gap: 1.5rem;
+}
+
+/* Input header (plain text, no card wrapper — avoids ghost box gap) */
+.input-header {
+    margin-top: 1.5rem;
+    margin-bottom: -0.5rem;
+}
+
+
+
+.top-header-left { display: flex; align-items: center; }
+.logo-container {
+    position: relative;
+    width: 44px;
+    height: 44px;
+}
+.logo-glow {
+    position: absolute; width: 30px; height: 30px;
+    background: var(--primary); filter: blur(20px);
+    opacity: 0.2; z-index: -1;
+}
+.brand-name { font-size: 1.4rem; font-weight: 800; color: #1e293b; line-height: 1; letter-spacing: -0.03em; }
+.brand-sub { font-size: 0.65rem; color: #64748b; font-weight: 700; letter-spacing: 0.15em; margin-top: 4px; text-transform: uppercase; }
+
+.status-pill {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    padding: 0.4rem 1rem;
+    border-radius: 999px;
+    font-size: 0.7rem;
+    font-weight: 700;
+    color: #475569;
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+}
+.pulse-dot {
+    width: 8px; height: 8px; background: #10b981; border-radius: 50%;
+    position: relative;
+}
+.pulse-dot::after {
+    content: ""; position: absolute; width: 100%; height: 100%;
+    background: #10b981; border-radius: 50%;
+    animation: pulse 2s infinite;
+}
+@keyframes pulse {
+    0% { transform: scale(1); opacity: 0.8; }
+    70% { transform: scale(3); opacity: 0; }
+    100% { transform: scale(3); opacity: 0; }
+}
+
+
+
+/* ===== Hero Section ===== */
+.hero-title {
+    font-size: 2.4rem; font-weight: 800; color: var(--text-dark);
+    line-height: 1.15; letter-spacing: -0.03em;
+    margin-bottom: 0.5rem;
+}
+.hero-subtitle {
+    font-size: 1rem; color: var(--text-muted); line-height: 1.5;
+    margin-bottom: 1rem;
+}
+.badge-row { display: flex; gap: 0.75rem; flex-wrap: wrap; }
+.feature-badge {
+    background: white; border: 1px solid var(--border);
+    padding: 0.35rem 0.9rem; border-radius: 999px;
+    font-size: 0.8rem; color: var(--text-muted); font-weight: 500;
+}
+
+/* ===== How It Works Card ===== */
+.hiw-card {
+    background: var(--card-bg); border: 1px solid var(--border);
+    border-radius: 12px; padding: 1.5rem;
+}
+.hiw-title { font-size: 1rem; font-weight: 700; color: var(--text-dark); margin-bottom: 1rem; }
+.hiw-step {
+    display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.75rem;
+}
+.hiw-num {
+    width: 28px; height: 28px; border-radius: 8px;
+    background: var(--primary-light); color: var(--primary);
+    font-weight: 800; font-size: 0.85rem;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+}
+.hiw-text { font-size: 0.9rem; color: var(--text-dark); }
+
+/* ===== Input Card ===== */
+.input-card {
+    background: var(--card-bg); border: 1px solid var(--border);
+    border-radius: 12px; padding: 1.75rem;
+    margin-bottom: 1.5rem;
+}
+.input-card-title { font-size: 1.1rem; font-weight: 700; color: var(--text-dark); margin-bottom: 0.25rem; }
+.input-card-sub { font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1rem; }
+
+/* ===== Example Pills ===== */
+.example-pills { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+.example-pill {
+    background: var(--primary-light); border: 1px solid #bfdbfe;
+    color: var(--primary); padding: 0.4rem 1rem;
+    border-radius: 999px; font-size: 0.8rem; font-weight: 600;
+    cursor: pointer; transition: all 0.15s ease;
+}
+.example-pill:hover { background: #dbeafe; }
+.example-pill.active {
+    background: var(--primary); color: white; border-color: var(--primary);
+}
+
+/* ===== Metric Cards (Results) — forced equal width and height ===== */
+.metric-card {
+    background: var(--card-bg); border: 1px solid var(--border);
+    border-radius: 12px; padding: 1.25rem; 
+    height: 160px; /* Standardized height */
+    display: flex; flex-direction: column;
+    width: 100%;
+    box-sizing: border-box;
+}
+/* Force columns to be equal regardless of content (like the large score circle) */
+[data-testid="stHorizontalBlock"]:has(.metric-card) div[data-testid="column"] {
+    flex: 1 1 0% !important;
+    min-width: 0 !important;
+}
+
+.metric-card-label {
+    font-size: 0.7rem; font-weight: 700; color: var(--text-muted);
+    text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 0.75rem;
+}
+.metric-card-value {
+    font-size: 1.1rem; font-weight: 700; color: var(--text-dark); line-height: 1.3;
+}
+.metric-card-sub {
+    font-size: 0.78rem; color: var(--text-muted); margin-top: 0.25rem; line-height: 1.3;
+}
+
+
+[data-testid="stHorizontalBlock"] > div > div {
+    flex: 1;
+}
+
+/* Score Circle */
+.score-ring {
+    width: 80px; height: 80px; border-radius: 50%;
+    border: 6px solid #e2e8f0; position: relative;
+    display: flex; align-items: center; justify-content: center;
+}
+.score-ring-fill {
+    position: absolute; top: -6px; left: -6px;
+    width: 80px; height: 80px;
+}
+.score-number { font-size: 1.5rem; font-weight: 800; color: var(--text-dark); }
+.score-denom { font-size: 0.7rem; color: var(--text-muted); }
+
+/* ===== Section Cards ===== */
+.section-card {
+    background: var(--card-bg); border: 1px solid var(--border);
+    border-radius: 12px; padding: 1.75rem; margin-bottom: 1rem; margin-top: 0.5rem;
+}
+/* Add vertical breathing room between Streamlit column blocks */
+[data-testid="stHorizontalBlock"] {
+    margin-bottom: 1.5rem;
+}
+.section-title {
+    font-size: 1.05rem; font-weight: 700; color: var(--text-dark); margin-bottom: 1rem;
+}
+
+/* ===== Lens Grid ===== */
+.lens-card {
+    background: var(--card-bg); border: 1px solid var(--border);
+    border-radius: 10px; padding: 1rem;
+    display: flex; justify-content: space-between; align-items: flex-start;
+}
+.lens-name { font-size: 0.85rem; font-weight: 700; color: var(--text-dark); }
+.lens-rationale { font-size: 0.75rem; color: var(--text-muted); margin-top: 0.15rem; }
+.lens-score { font-size: 1rem; font-weight: 800; color: var(--primary); white-space: nowrap; }
+
+/* ===== Strengths / Gaps ===== */
+.strengths-card {
+    background: #f0fdf4; border: 1px solid #bbf7d0;
+    border-radius: 12px; padding: 1.5rem;
+}
+.gaps-card {
+    background: #fef2f2; border: 1px solid #fecaca;
+    border-radius: 12px; padding: 1.5rem;
+}
+.strength-item { color: #15803d; font-size: 0.85rem; margin-bottom: 0.3rem; }
+.gap-item { color: #b91c1c; font-size: 0.85rem; margin-bottom: 0.3rem; }
+
+/* ===== Risk Table ===== */
+.risk-table { width: 100%; border-collapse: collapse; }
+.risk-table th {
+    text-align: left; padding: 0.6rem 0.75rem;
+    background: #f8fafc; font-size: 0.75rem;
+    color: var(--text-muted); font-weight: 700;
+    text-transform: uppercase; border-bottom: 1px solid var(--border);
+}
+.risk-table td {
+    padding: 0.75rem; border-bottom: 1px solid var(--border);
+    font-size: 0.85rem; color: var(--text-dark); vertical-align: top;
+}
+.sev-high { background: #fee2e2; color: #991b1b; padding: 2px 10px; border-radius: 6px; font-size: 0.75rem; font-weight: 700; }
+.sev-medium { background: #fef3c7; color: #92400e; padding: 2px 10px; border-radius: 6px; font-size: 0.75rem; font-weight: 700; }
+.sev-low { background: #f0fdf4; color: #166534; padding: 2px 10px; border-radius: 6px; font-size: 0.75rem; font-weight: 700; }
+
+/* ===== Footer / Action Bar ===== */
+.action-footer {
+    background: var(--primary-light); border: 1px solid #bfdbfe;
+    border-radius: 12px; padding: 1.5rem;
+    display: flex; align-items: center; justify-content: space-between;
+    margin-top: 1.5rem;
+}
+
+/* ===== Gap Map Table ===== */
+.gap-table { width: 100%; border-collapse: collapse; }
+.gap-table th {
+    text-align: left; padding: 0.75rem 1rem;
+    background: #f8fafc; font-size: 0.75rem;
+    color: var(--text-muted); font-weight: 700;
+    text-transform: uppercase; border-bottom: 1px solid var(--border);
+}
+.gap-table td {
+    padding: 1rem; border-bottom: 1px solid var(--border);
+    font-size: 0.85rem; color: var(--text-dark);
+}
+.gap-arrow { color: #94a3b8; font-size: 1.2rem; }
+
+/* ===== Sidebar Cards (Missing Info / Assumptions) ===== */
+.sidebar-card {
+    background: #ffffff; border: 1px solid var(--border);
+    border-radius: 12px; padding: 1.5rem; margin-bottom: 1.5rem;
+}
+.sidebar-title {
+    font-size: 0.95rem; font-weight: 700; color: #1e293b;
+    display: flex; align-items: center; gap: 0.5rem; margin-bottom: 1rem;
+}
+.sidebar-item {
+    font-size: 0.8rem; color: #475569; margin-bottom: 0.6rem;
+    display: flex; align-items: flex-start; gap: 0.5rem;
+}
+.sidebar-item::before {
+    content: "•"; color: #3b82f6; font-weight: bold;
+}
+
+/* ===== Premium Footer Next Step ===== */
+.footer-next-step-card {
+    background: #f0f7ff; border: 1px solid #bfdbfe;
+    border-radius: 16px; padding: 2rem; margin-top: 2rem;
+    display: flex; align-items: center; justify-content: space-between;
+}
+.footer-next-step-left {
+    display: flex; align-items: center; gap: 1.5rem; flex: 1;
+}
+.footer-next-step-icon {
+    width: 64px; height: 64px; background: white;
+    border-radius: 50%; border: 1px solid #bfdbfe;
+    display: flex; align-items: center; justify-content: center;
+    color: #2563eb;
+}
+.pilot-plan-grid {
+    display: grid; grid-template-columns: 1fr 1fr 1fr;
+    gap: 1rem 2rem; flex: 2; margin-left: 3rem;
+    border-left: 1px solid #bfdbfe; padding-left: 3rem;
+}
+.pilot-item {
+    font-size: 0.85rem; color: #1e293b; font-weight: 500;
+    display: flex; align-items: center; gap: 0.5rem;
+}
+.pilot-check {
+    color: #2563eb; font-size: 1.1rem;
+}
+
+/* ===== Button Overrides ===== */
+div.stButton > button[kind="primary"] {
+    background-color: var(--primary) !important;
+    color: white !important;
+    border: none !important;
+    border-radius: 8px !important;
+    font-weight: 600 !important;
+    padding: 0.5rem 1.5rem !important;
+}
+div.stButton > button[kind="secondary"] {
+    background-color: white !important;
+    color: var(--text-dark) !important;
+    border: 1px solid var(--border) !important;
+    border-radius: 8px !important;
+    font-weight: 600 !important;
+}
+
+/* ===== Control Row Alignment ===== */
+.control-toggle {
+    margin-top: 1.85rem;
+}
+.control-button {
+    margin-top: 1.85rem;
+}
+
+/* Running state button */
+div.stButton > button:disabled {
+    background-color: #60a5fa !important;
+    color: rgba(255, 255, 255, 0.8) !important;
+    cursor: not-allowed !important;
+    border: none !important;
+}
+
+    gap: 0 !important;
+    border-bottom: 1px solid var(--border) !important;
+}
+.stTabs [data-baseweb="tab"] {
+    font-weight: 600 !important;
+    color: var(--text-muted) !important;
+    padding: 0.5rem 1.25rem !important;
+}
+.stTabs [aria-selected="true"] {
+    color: var(--primary) !important;
+    border-bottom: 2px solid var(--primary) !important;
+}
