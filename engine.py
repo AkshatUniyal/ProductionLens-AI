@@ -68,7 +68,13 @@ class ReviewEngine:
         try:
             tags = self._client.list()
             available = {m.model for m in tags.models}
-            if self.model not in available:
+            # Accept both exact match and implicit :latest suffix
+            model_found = (
+                self.model in available
+                or f"{self.model}:latest" in available
+                or any(m.startswith(f"{self.model}:") for m in available)
+            )
+            if not model_found:
                 raise RuntimeError(
                     f"Model '{self.model}' is not available in Ollama. "
                     f"Run: ollama pull {self.model}\n"

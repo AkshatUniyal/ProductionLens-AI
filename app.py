@@ -54,6 +54,8 @@ if "idea_input" not in st.session_state:
     st.session_state.idea_input = ""
 if "widget_version" not in st.session_state:
     st.session_state.widget_version = 0
+if "review_error" not in st.session_state:
+    st.session_state.review_error = None
 
 def h(value):
     return html.escape(str(value or ""), quote=True)
@@ -226,21 +228,25 @@ if nav == "Audit Engine":
             st.session_state.running_review = True
             st.rerun()
 
+        if st.session_state.review_error:
+            st.error(f"⚠️ {st.session_state.review_error}")
+            if st.button("Dismiss"):
+                st.session_state.review_error = None
+                st.rerun()
+
         if st.session_state.running_review:
-            with st.spinner("Processing..."):
+            with st.spinner("Analyzing with local Ollama — this may take up to a minute..."):
                 try:
                     result = engine.get_review(st.session_state.idea_input, mode, depth, include_pilot=st.session_state.pilot_toggle, include_checklist=st.session_state.check_toggle)
                     res_dict = result.model_dump()
                     if st.session_state.project_name:
                         res_dict['project_name'] = st.session_state.project_name
                     st.session_state.result = res_dict
+                    st.session_state.review_error = None
                     db.save_review(st.session_state.idea_input, mode, depth, result)
                 except Exception as e:
                     msg = str(e)
-                    if "ollama" in msg.lower() or "cannot reach" in msg.lower() or "model" in msg.lower():
-                        st.error(f"⚠️ {msg}")
-                    else:
-                        st.error(f"Review failed: {msg}")
+                    st.session_state.review_error = msg
                     logger.exception("Review failed")
                 finally:
                     st.session_state.running_review = False

@@ -103,10 +103,21 @@ def test_check_ollama_raises_when_model_missing():
     engine.host = "http://127.0.0.1:11434"
     engine.timeout = 120
     mock_client = MagicMock()
-    mock_client.list.return_value = MagicMock(models=[MagicMock(model="llama3.2")])
+    mock_client.list.return_value = MagicMock(models=[MagicMock(model="llama3.2:latest")])
     engine._client = mock_client
     with pytest.raises(RuntimeError, match="not available"):
         engine._check_ollama()
+
+
+def test_check_ollama_accepts_latest_suffix():
+    engine = ReviewEngine.__new__(ReviewEngine)
+    engine.model = "llama3.2"  # configured without :latest
+    engine.host = "http://127.0.0.1:11434"
+    engine.timeout = 120
+    mock_client = MagicMock()
+    mock_client.list.return_value = MagicMock(models=[MagicMock(model="llama3.2:latest")])
+    engine._client = mock_client
+    engine._check_ollama()  # should not raise
 
 
 def test_check_ollama_raises_when_unreachable():
