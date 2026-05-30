@@ -1,13 +1,24 @@
-import streamlit as st
+import html
+import json
+import logging
+import os
+from datetime import datetime
+from pathlib import Path
+
 import pandas as pd
 import plotly.graph_objects as go
-from engine import ReviewEngine
-from database import Database
+import streamlit as st
+
 from analytics import Analytics
+from database import Database
+from engine import MAX_INPUT_CHARS, ReviewEngine
 from exporter import Exporter
-import json
-import html
-from datetime import datetime
+
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s  %(levelname)-8s  %(name)s  %(message)s",
+)
+logger = logging.getLogger(__name__)
 
 # Page Config
 st.set_page_config(
@@ -24,8 +35,11 @@ analytics = Analytics(db)
 exporter = Exporter()
 
 # Load CSS
-with open("style.css") as f:
-    st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
+_css_path = Path(__file__).parent / "style.css"
+try:
+    st.markdown(f"<style>{_css_path.read_text()}</style>", unsafe_allow_html=True)
+except OSError:
+    logger.warning("style.css not found at %s — running without custom styles.", _css_path)
 
 # State
 if 'result' not in st.session_state:
@@ -169,7 +183,17 @@ if nav == "Audit Engine":
             st.session_state.project_name = proj_name
 
         st.markdown("<p style='font-size: 0.85rem; font-weight: 600; color: #1e293b; margin-bottom: 0.25rem; margin-top: 1rem;'>Project Description</p>", unsafe_allow_html=True)
-        idea_text = st.text_area("Project description", value=st.session_state.idea_input, height=140, key=widget_key, label_visibility="collapsed")
+        idea_text = st.text_area(
+            "Project description",
+            value=st.session_state.idea_input,
+            height=140,
+            key=widget_key,
+            label_visibility="collapsed",
+            max_chars=MAX_INPUT_CHARS,
+            help=f"Describe your AI project. Maximum {MAX_INPUT_CHARS:,} characters.",
+        )
+        char_count = len(idea_text)
+        st.caption(f"{char_count:,} / {MAX_INPUT_CHARS:,} characters")
         if idea_text != st.session_state.idea_input:
             st.session_state.idea_input = idea_text
 
@@ -211,7 +235,13 @@ if nav == "Audit Engine":
                         res_dict['project_name'] = st.session_state.project_name
                     st.session_state.result = res_dict
                     db.save_review(st.session_state.idea_input, mode, depth, result)
-                except Exception as e: st.error(f"Error: {e}")
+                except Exception as e:
+                    msg = str(e)
+                    if "ollama" in msg.lower() or "cannot reach" in msg.lower() or "model" in msg.lower():
+                        st.error(f"⚠️ {msg}")
+                    else:
+                        st.error(f"Review failed: {msg}")
+                    logger.exception("Review failed")
                 finally:
                     st.session_state.running_review = False
                     st.rerun()

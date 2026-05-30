@@ -1,12 +1,23 @@
-from fpdf import FPDF
-import json
+import logging
 from datetime import datetime
+
+from fpdf import FPDF
+
+logger = logging.getLogger(__name__)
+
 
 class Exporter:
     def __init__(self):
         pass
 
-    def generate_pdf(self, result_dict):
+    def generate_pdf(self, result_dict: dict) -> bytes:
+        try:
+            return self._build_pdf(result_dict)
+        except Exception as exc:
+            logger.exception("PDF generation failed")
+            raise RuntimeError(f"PDF export failed: {exc}") from exc
+
+    def _build_pdf(self, result_dict: dict) -> bytes:
         pdf = FPDF()
         pdf.add_page()
         
@@ -17,23 +28,23 @@ class Exporter:
         pdf.set_font("Helvetica", "B", 24)
         pdf.set_text_color(255, 255, 255)
         pdf.set_xy(15, 12)
-        pdf.cell(0, 10, "ProductionLens AI", ln=True)
+        pdf.cell(0, 10, "ProductionLens AI", new_x="LMARGIN", new_y="NEXT")
         
         pdf.set_font("Helvetica", "", 12)
         pdf.set_text_color(147, 197, 253)
         pdf.set_xy(15, 22)
-        pdf.cell(0, 10, "Enterprise Readiness Report", ln=True)
+        pdf.cell(0, 10, "Enterprise Readiness Report", new_x="LMARGIN", new_y="NEXT")
         
         # --- PROJECT NAME TITLE ---
         pdf.set_xy(15, 45)
         pdf.set_font("Helvetica", "B", 20)
         pdf.set_text_color(30, 41, 59)
         project_name = result_dict.get('project_name') or " ".join(result_dict.get('input_summary', 'Audit Project').split()[:4])
-        pdf.cell(0, 10, project_name, ln=True)
+        pdf.cell(0, 10, project_name, new_x="LMARGIN", new_y="NEXT")
         
         pdf.set_font("Helvetica", "", 10)
         pdf.set_text_color(100, 116, 139)
-        pdf.cell(0, 5, f"Generated on: {datetime.now().strftime('%Y-%m-%d %H:%M')}", ln=True)
+        pdf.cell(0, 5, f"Generated on: {datetime.now().strftime('%Y-%m-%d %H:%M')}", new_x="LMARGIN", new_y="NEXT")
         pdf.ln(5)
         
         # --- READINESS METRICS ---
@@ -52,18 +63,18 @@ class Exporter:
         pdf.set_xy(20, pdf.get_y() + 5)
         pdf.set_font("Helvetica", "B", 14)
         pdf.set_text_color(*text_c)
-        pdf.cell(0, 6, f"Readiness Score: {score}/100", ln=True)
+        pdf.cell(0, 6, f"Readiness Score: {score}/100", new_x="LMARGIN", new_y="NEXT")
         
         pdf.set_font("Helvetica", "", 11)
         pdf.set_text_color(30, 41, 59)
         pdf.set_xy(20, pdf.get_y())
-        pdf.cell(0, 8, f"Recommendation: {result_dict.get('recommendation', '')}", ln=True)
+        pdf.cell(0, 8, f"Recommendation: {result_dict.get('recommendation', '')}", new_x="LMARGIN", new_y="NEXT")
         pdf.ln(10)
         
         # --- EXECUTIVE SUMMARY ---
         pdf.set_font("Helvetica", "B", 14)
         pdf.set_text_color(15, 23, 42)
-        pdf.cell(0, 10, "Executive Summary", ln=True)
+        pdf.cell(0, 10, "Executive Summary", new_x="LMARGIN", new_y="NEXT")
         pdf.set_font("Helvetica", "", 10)
         pdf.set_text_color(51, 65, 85)
         pdf.multi_cell(0, 6, result_dict.get('executive_summary', ''))
@@ -72,17 +83,17 @@ class Exporter:
         # --- STRATEGIC METRICS ---
         pdf.set_font("Helvetica", "B", 14)
         pdf.set_text_color(15, 23, 42)
-        pdf.cell(0, 10, "Strategic Metrics", ln=True)
+        pdf.cell(0, 10, "Strategic Metrics", new_x="LMARGIN", new_y="NEXT")
         pdf.set_font("Helvetica", "", 10)
         pdf.set_text_color(51, 65, 85)
-        pdf.cell(0, 6, f"AI ROI Potential: {result_dict.get('roi_score', 'N/A')}/10", ln=True)
-        pdf.cell(0, 6, f"Estimated Pilot Budget: {result_dict.get('estimated_pilot_cost', 'N/A')}", ln=True)
+        pdf.cell(0, 6, f"AI ROI Potential: {result_dict.get('roi_score', 'N/A')}/10", new_x="LMARGIN", new_y="NEXT")
+        pdf.cell(0, 6, f"Estimated Pilot Budget: {result_dict.get('estimated_pilot_cost', 'N/A')}", new_x="LMARGIN", new_y="NEXT")
         pdf.ln(5)
         
         # --- 8-LENS PERFORMANCE BENCHMARK ---
         pdf.set_font("Helvetica", "B", 14)
         pdf.set_text_color(15, 23, 42)
-        pdf.cell(0, 10, "Lens Breakdown", ln=True)
+        pdf.cell(0, 10, "Lens Breakdown", new_x="LMARGIN", new_y="NEXT")
         
         for lens in result_dict.get('lens_scores', []):
             if pdf.get_y() > 250:
@@ -106,7 +117,7 @@ class Exporter:
             # Colored Score Badge
             pdf.set_fill_color(fr, fg, fb)
             pdf.set_text_color(r, g, b)
-            pdf.cell(20, 8, f" {l_score}/10 ", ln=True, fill=True, align="C")
+            pdf.cell(20, 8, f" {l_score}/10 ", new_x="LMARGIN", new_y="NEXT", fill=True, align="C")
             
             # Multi-line rationale (Fixes truncation bug)
             pdf.set_font("Helvetica", "", 9)
@@ -121,12 +132,12 @@ class Exporter:
             if pdf.get_y() > 250: pdf.add_page()
             pdf.set_font("Helvetica", "B", 14)
             pdf.set_text_color(15, 23, 42)
-            pdf.cell(0, 10, "Technical Gap Map", ln=True)
+            pdf.cell(0, 10, "Technical Gap Map", new_x="LMARGIN", new_y="NEXT")
             
             for item in result_dict['gaps']:
                 pdf.set_font("Helvetica", "B", 10)
                 pdf.set_text_color(30, 41, 59)
-                pdf.cell(0, 6, f"\x95 {item.get('feature', 'Feature')}", ln=True)
+                pdf.cell(0, 6, f"\x95 {item.get('feature', 'Feature')}", new_x="LMARGIN", new_y="NEXT")
                 pdf.set_x(20)
                 pdf.set_font("Helvetica", "", 9)
                 pdf.set_text_color(100, 116, 139)
@@ -139,7 +150,7 @@ class Exporter:
             if pdf.get_y() > 250: pdf.add_page()
             pdf.set_font("Helvetica", "B", 14)
             pdf.set_text_color(15, 23, 42)
-            pdf.cell(0, 10, "Strategic Pilot Roadmap", ln=True)
+            pdf.cell(0, 10, "Strategic Pilot Roadmap", new_x="LMARGIN", new_y="NEXT")
             
             for idx, phase_text in enumerate(result_dict['pilot_plan']):
                 pdf.set_fill_color(248, 250, 252)
@@ -147,7 +158,7 @@ class Exporter:
                 pdf.set_xy(20, pdf.get_y() + 2)
                 pdf.set_font("Helvetica", "B", 10)
                 pdf.set_text_color(37, 99, 235)
-                pdf.cell(0, 6, f"Phase {idx+1}", ln=True)
+                pdf.cell(0, 6, f"Phase {idx+1}", new_x="LMARGIN", new_y="NEXT")
                 
                 pdf.set_x(20)
                 pdf.set_font("Helvetica", "", 9)
@@ -155,4 +166,6 @@ class Exporter:
                 pdf.multi_cell(170, 5, phase_text)
                 pdf.ln(6)
             
-        return pdf.output()
+        output = pdf.output()
+        logger.info("PDF generated successfully (%d bytes)", len(output))
+        return output
